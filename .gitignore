@@ -1,0 +1,11 @@
+build/
+*.vcd
+*.out
+*.bin
+*.asc
+*.json
+*.vvp
+*.log
+.apio/
+CuV2Pin.kt
+io_v2.acf
