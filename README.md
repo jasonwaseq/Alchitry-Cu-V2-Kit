@@ -43,7 +43,7 @@ Use Apio for synthesis with the Cu board definition:
 apio build
 ```
 
-For upload, use the normal Alchitry Loader flow or another native programmer
+For upload, use the normal Alchitry Loader flow or OpenFPGALoader:  openFPGALoader -b ice40_generic test.bin   
 path that can reliably access the Cu V2 USB device. In this workspace, WSL
 `iceprog` verification was unreliable, while Alchitry Loader flashed the board
 correctly.
