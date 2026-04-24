@@ -37,10 +37,31 @@ quarter of a second in clock cycles.
 
 ## Build
 
-Use Apio for synthesis with the Cu board definition:
+There is no Makefile in this repository, so `make bitstream` will fail.
+
+Use Apio for synthesis with the Cu board definition (when Apio is installed):
 
 ```text
 apio build
+```
+
+### Manual bitstream flow (OSS CAD Suite)
+
+Generate a bitstream for `lab 4 rtl/top.v` with:
+
+```text
+yosys -p 'read_verilog "lab 4 rtl/top.v" qsec_clks.v "lab 4 rtl/edge_detector.v" "lab 4 rtl/lfsr.v" "lab 4 rtl/time_counter.v" "lab 4 rtl/fsm.v" "lab 4 rtl/led_shifter.v" "lab 4 rtl/adder8.v" "lab 4 rtl/ring_counter.v" "lab 4 rtl/selector.v" "lab 4 rtl/hex7seg.v" "lab 4 rtl/countUD16L.v" "lab 4 rtl/countUD4L.v"; synth_ice40 -top top -json top.json'
+nextpnr-ice40 --hx8k --package cb132 --json top.json --pcf alchitry_cu_v2.pcf --asc top.asc
+icepack top.asc top.bin
+```
+
+Re-run all three commands before flashing. `openFPGALoader` only programs the existing
+`top.bin`; it does not rebuild it from your Verilog sources.
+
+Optional programming step:
+
+```text
+openFPGALoader -b ice40_generic top.bin
 ```
 
 For upload, use the normal Alchitry Loader flow or OpenFPGALoader:  openFPGALoader -b ice40_generic test.bin   
@@ -57,6 +78,13 @@ Example with Icarus Verilog:
 
 ```text
 iverilog -o qsec_clks_tb.out qsec_clks.v qsec_clks_tb.v && vvp qsec_clks_tb.out
+```
+
+Equivalent two-step command sequence:
+
+```text
+iverilog -g2012 -o qsec_clks_tb.vvp qsec_clks.v qsec_clks_tb.v
+vvp qsec_clks_tb.vvp
 ```
 
 ## Board mapping
