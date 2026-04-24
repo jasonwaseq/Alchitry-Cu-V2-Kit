@@ -15,7 +15,16 @@ module top(
     wire clk = clkin;
     // Cu reset is active-low on the board button; convert it once and use an active-high
     // internal reset everywhere else in this design.
-    wire rst = ~btnR;
+    // For Alchitry Io Board, emulate pull-downs on buttons
+  reg [4:0] btn_r;
+  always @(posedge clk) btn_r <= {btnD, btnL, btnR, btnU, btnC};
+
+  wire rst = ~sw[0];
+  wire stop = ~btn_r[4];  // Center button
+  wire up = ~btn_r[3];    // Top button
+  wire right = ~btn_r[2]; // Right button
+  wire left = ~btn_r[1];  // Left button
+  wire down = ~btn_r[0];  // Down button
     wire qsec;
     qsec_clks slowit(
         .clk(clk),
@@ -144,8 +153,8 @@ module top(
 
     wire cheat_on = sw[15];
     wire hide_sum_digit = active_digit[2] & ~cheat_on;
-    assign seg = raw_seg | {7{hide_sum_digit}};
-    assign dp = 1'b1;
+    assign seg = ~raw_seg & {7{~hide_sum_digit}};
+    assign dp = 1'b0;
 
     wire [3:0] base_an;
     assign base_an = {
