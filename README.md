@@ -50,9 +50,10 @@ apio build
 Generate a bitstream for `lab 4 rtl/top.v` with:
 
 ```text
-yosys -p 'read_verilog "lab 4 rtl/top.v" qsec_clks.v "lab 4 rtl/edge_detector.v" "lab 4 rtl/lfsr.v" "lab 4 rtl/time_counter.v" "lab 4 rtl/fsm.v" "lab 4 rtl/led_shifter.v" "lab 4 rtl/adder8.v" "lab 4 rtl/ring_counter.v" "lab 4 rtl/selector.v" "lab 4 rtl/hex7seg.v" "lab 4 rtl/countUD16L.v" "lab 4 rtl/countUD4L.v"; synth_ice40 -top top -json top.json'
+yosys -p 'read_verilog top.v qsec_clks.v edge_detector.v lfsr.v time_counter.v fsm.v led_shifter.v adder8.v ring_counter.v selector.v hex7seg.v countUD16L.v countUD4L.v; synth_ice40 -top top -json top.json'
 nextpnr-ice40 --hx8k --package cb132 --json top.json --pcf alchitry_cu_v2.pcf --asc top.asc
 icepack top.asc top.bin
+
 ```
 
 Re-run all three commands before flashing. `openFPGALoader` only programs the existing
