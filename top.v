@@ -148,7 +148,7 @@ module top(
     // Segments are active-LOW: raw_seg already encodes 0=ON.
     // When hiding digit 2 (sum), drive all segments HIGH (all OFF).
     assign seg = raw_seg | {7{hide_sum_digit}};
-    assign dp = 1'b0;
+    assign dp = 1'b1;
 
     wire phase = sec_q[0];
 
@@ -163,8 +163,7 @@ module top(
         (lose & phase) | (win & ~phase)     // digit 0
     };
 
-    // Digit select is active-HIGH on the IO Shield V2:
-    // active_digit is one-hot; AND with ~flash_mask to blank digits during flash.
-    assign an = active_digit & ~flash_mask;
+    // Digit select is active-LOW on the IO Shield.
+    assign an = ~(active_digit & ~flash_mask);
 
 endmodule
