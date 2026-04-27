@@ -16,8 +16,8 @@ module top(
 
     wire clk = clkin;
     // Switches are active-HIGH: switch ON -> sw[i]=1.
-    // sw[0] ON -> rst=0 (running). sw[0] OFF -> rst=1 (reset).
-    wire rst = ~sw[0];
+    // sw[0] ON -> run. sw[0] OFF or btnR pressed -> reset.
+    wire rst = ~sw[0] | btnR;
     wire qsec;
     qsec_clks slowit(
         .clk(clk),
@@ -44,6 +44,7 @@ module top(
     wire [7:0] rand_q;
     lfsr random_num(
         .clk_i(clk),
+        .reset_i(rst),
         .ce_i (qsec),
         .q_o(rand_q)
     );
@@ -54,7 +55,7 @@ module top(
     time_counter timer(
         .clk_i(clk),
         .inc_i(qsec),
-        .reset_i(reset_timer),
+        .reset_i(reset_timer | rst),
         .q_o(sec_q)
     );
 
@@ -72,6 +73,7 @@ module top(
 
     fsm quick_add(
         .clk_i(clk),
+        .reset_i(rst),
         .go_i(go_pulse),
         .stop_i(stop_pulse),
         .two_secs_i(two_secs),
@@ -88,7 +90,7 @@ module top(
 
     led_shifter led_shift(
         .clk_i(clk),
-        .in_i(shl),
+        .reset_i(rst),
         .shl_i(shl),
         .shr_i(shr),
         .q_o(led)
@@ -103,13 +105,19 @@ module top(
     reg [3:0] Sval = 4'b0000;
 
     always @(posedge clk) begin
-        if (load_numbers_tick) begin
-            Aval <= rand_q[2:0];
-            Bval <= rand_q[5:3];
-        end
+        if (rst) begin
+            Aval <= 3'b000;
+            Bval <= 3'b000;
+            Sval <= 4'b0000;
+        end else begin
+            if (load_numbers_tick) begin
+                Aval <= rand_q[2:0];
+                Bval <= rand_q[5:3];
+            end
 
-        if (load_target) begin
-            Sval <= rand_q[7:4];
+            if (load_target) begin
+                Sval <= rand_q[7:4];
+            end
         end
     end
 
@@ -125,7 +133,7 @@ module top(
     );
 
     wire [3:0] sum_number = sum8[3:0];
-    assign match = &(~(sum_number ^ Sval)) | sw[14];
+    assign match = &(~(sum_number ^ Sval));
 
     wire [15:0] disp_nibs;
     assign disp_nibs = { Sval, sum_number, {1'b0,Bval}, {1'b0,Aval} };
